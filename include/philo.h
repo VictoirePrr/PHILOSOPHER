@@ -17,7 +17,8 @@ typedef struct s_philo
 {
 	int				id;
 	pthread_mutex_t	*print_mutex;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
 }					t_philo;
-
 
 #endif
