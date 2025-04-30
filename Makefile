@@ -6,7 +6,7 @@
 #    By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 15:32:31 by vicperri          #+#    #+#              #
-#    Updated: 2025/04/11 18:01:13 by vicperri         ###   ########lyon.fr    #
+#    Updated: 2025/04/30 11:23:47 by vicperri         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,12 @@ CPPFLAGS = -MMD -MP
 CCFLAGS := -Wall -Wextra -Werror -g3
 SRC_DIR := src/
 INCLUDES := include/
-SRC := $(addprefix $(SRC_DIR), main.c)
+SRC := $(addprefix $(SRC_DIR), \
+	main.c \
+	parsing.c \
+	routine.c \
+	utils.c \
+)
 
 # Object Files and Directories
 OBJ_DIR := .obj/
@@ -60,7 +65,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 
 # Kitty Art
 kitty:
-	@echo "$(MAGENTA)"
+	@echo "$(GREEN)"
 	@echo "                                 /|"
 	@echo "                               ///"
 	@echo "                              / /"
@@ -80,7 +85,7 @@ kitty:
 	@echo "            /        |                   |        |"
 	@echo "            |        |                   |        |"
 	@echo "            |        |---__-----____-----|        |"
-	@echo "           {^_^} v{-_-}                  {*_*} v(0_0)"
+	@echo "            __________                   __________"
 	@echo "$(DEF_COLOR)"
 
 # Display custom greeting

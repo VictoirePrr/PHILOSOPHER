@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
+/*   Updated: 2025/04/30 11:43:11 by vicperri         ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	*routine(void *arg)
@@ -8,106 +20,53 @@ void	*routine(void *arg)
 	int cycles = 10; //  time_to_die
 	while (cycles > 0)
 	{
-		pthread_mutex_lock(philo->print_mutex);
-		printf("Philo %d is thinking...\n", philo->id);
-		usleep(500 * 1000); // is there a time to think ??
-		pthread_mutex_unlock(philo->print_mutex);
-		pthread_mutex_lock(philo->left_fork);
-		pthread_mutex_lock(philo->right_fork);
-		pthread_mutex_lock(philo->print_mutex);
-		printf("Philo %d is eating 🍝\n", philo->id);
-		usleep(1000 * 1000); // time_to_eat
-		pthread_mutex_unlock(philo->print_mutex);
-		pthread_mutex_unlock(philo->left_fork);
-		pthread_mutex_unlock(philo->right_fork);
-		pthread_mutex_lock(philo->print_mutex);
-		printf("Philo %d is sleeping 💤\n", philo->id);
-		usleep(700 * 1000); // time_to_sleep
-		pthread_mutex_unlock(philo->print_mutex);
+		// Try to take forks
+		if (take_fork(philo->left_fork) && take_fork(philo->right_fork))
+		{
+			print_action(philo, "is eating 🍝");
+			usleep(philo->time_to_eat * 1000);
+			release_fork(philo->left_fork);
+			release_fork(philo->right_fork);
+			print_action(philo, "is sleeping 😴");
+			usleep(philo->time_to_sleep * 1000);
+		}
+		else
+		{
+			// If you failed to take both forks, release any you took
+			release_fork(philo->left_fork);
+			release_fork(philo->right_fork);
+			print_action(philo, "is thinking 🧠");
+			usleep(1000); // wait a bit before retrying
+		}
 		cycles--;
 	} // wtf is -> [number_of_times_each_philosopher_must_eat]
 	return (NULL);
 }
 
-void	init_philosophers(t_philo *philo, pthread_mutex_t *print_mutex,
-		pthread_mutex_t *forks, int num)
+int	main(int argc, char **argv)
 {
-	int	i;
+	t_philo	*philo;
+	int		size;
 
-	i = 0;
-	while (i < num)
+	size = 0;
+	if (argc < 6)
 	{
-		philo[i].id = i + 1; // to start at 1.
-		philo[i].print_mutex = print_mutex;
-		philo[i].left_fork = &forks[i];
-		philo[i].right_fork = &forks[(i + 1) % num]; // calcul a revoir
-		i++;
+		printf("ERROR : missing argument");
+		return (ERROR);
 	}
-}
-
-int	init_forks(pthread_mutex_t *forks, int num)
-{
-	int	i;
-
-	i = 0;
-	while (i < num)
+	else
 	{
-		if (pthread_mutex_init(&forks[i], NULL) != 0)
-		{
-			printf("Error initializing mutex\n");
-			return (ERROR);
-		}
-		i++;
+		printf("ERROR : too much arguments");
+		return (ERROR);
 	}
-	return (SUCCESS);
-}
-
-int	main(void)
-{
-	int number_of_philosophers;
-	int i;
-
-	number_of_philosophers = 5; // Number of philosophers
-	pthread_t thread[number_of_philosophers];
-	t_philo philo[number_of_philosophers]; // Array of philosophers
-	pthread_mutex_t print_mutex;           // Shared mutex for printing
-	pthread_mutex_t forks[number_of_philosophers];
-
-	// Init forks
-	if (init_forks(forks, number_of_philosophers) == ERROR)
-		return (1);
-
-	// Init the print_mutex
-	pthread_mutex_init(&print_mutex, NULL);
-
-	// Fill the structs with the shared print_mutex
-	init_philosophers(philo, &print_mutex, forks, number_of_philosophers);
-
-	// Create the threads
-	i = 0;
-	while (i < number_of_philosophers)
-	{
-		if (pthread_create(&thread[i], NULL, routine, &philo[i]) != 0)
-		{
-			printf("ERROR : pthread_create didn't work !\n");
-			return (1);
-		}
-		i++;
-	}
-	// Wait for all threads to finish
-	i = 0;
-	while (i < number_of_philosophers)
-	{
-		pthread_join(thread[i], NULL);
-		i++;
-	}
-	pthread_mutex_destroy(&print_mutex);
-	i = 0;
-	while (i < number_of_philosophers)
-	{
-		pthread_mutex_destroy(&forks[i]);
-		i++;
-	}
+	if (check_ascii(argv[1]) == SUCCESS)
+		size = ft_atoi(argv[1]);
+	philo = malloc(size + 1 * sizeof(char)); // Array of philosophers
+	if (!philo)
+		return (ERROR);
+	if (argc == 6)
+		parse_args(argv, philo);
+	handle_routine(philo);
 	printf("All the philo died. Bye.\n");
-	return (0);
+	return (SUCCESS);
 }
