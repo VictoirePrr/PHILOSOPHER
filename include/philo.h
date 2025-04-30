@@ -23,28 +23,46 @@ typedef struct s_philo
 {
 	int				id;
 	pthread_mutex_t	*print_mutex;
+	int				times_eaten;
+
+	long long		last_meal_time;
+	pthread_mutex_t meal_mutex; // protects last_meal_time
+
 	t_fork			*left_fork;
 	t_fork			*right_fork;
-	int				num;
+
+	struct s_data *data; // shared global data
+}					t_philo;
+typedef struct s_data
+{
+	int				nb_philo;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				times_eaten;
-}					t_philo;
+	int				num_of_times_each_philo_must_eat;
+
+	long long		start_time;
+	int				stop_simulation;
+	pthread_mutex_t	stop_mutex;
+	pthread_mutex_t	print_mutex;
+	t_philo			*philos;
+	t_fork			*forks;
+}					t_data;
 
 // main
 void				*routine(void *arg);
+t_data				*init_data(t_data *data, int argc, char **argv);
 
 // parsing
 int					check_ascii(char *argj);
 int					parse_args(char **argv, t_philo *philo);
 
 // routine
-int					handle_routine(t_philo *philo);
+int					handle_routine(t_data *data);
 int					init_forks(t_fork *forks, int num);
-int					start_routine(t_philo *philo);
-void				init_philosophers(t_philo *philo,
-						pthread_mutex_t *print_mutex, t_fork *forks);
+int					start_routine(t_data *data, pthread_t *thread);
+int					init_philosophers(t_philo *philo, t_fork *forks,
+						t_data *data);
 void				destroy_mutex(t_philo *philo, pthread_mutex_t *print_mutex,
 						t_fork *forks);
 

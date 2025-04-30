@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:58:58 by vicperri          #+#    #+#             */
-/*   Updated: 2025/04/30 11:41:09 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/04/30 14:11:11 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,6 @@ void	release_fork(t_fork *fork)
 void	print_action(t_philo *philo, char *str)
 {
 	pthread_mutex_lock(philo->print_mutex);
-	printf("%s\n", str);
+	printf("%d %s\n", philo->id, str);
 	pthread_mutex_unlock(philo->print_mutex);
 }
