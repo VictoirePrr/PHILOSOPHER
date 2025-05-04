@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/04/30 15:52:34 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/01 13:59:35 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,33 +18,50 @@ long long	get_time_in_ms(void)
 
 	gettimeofday(&current_time, NULL);
 	return (current_time.tv_sec * 1000 + current_time.tv_usec / 1000);
-} // wtf is going on
+	// wtf is going on
+}
 void	*routine(void *arg)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	while (!philo->data->stop_simulation)
-	{
-		// Try to take forks
-		if (take_fork(philo->left_fork) && take_fork(philo->right_fork))
+	if (philo->data->num_of_times_each_philo_must_eat != -1)
+		while (!philo->data->stop_simulation)
 		{
-			print_action(philo, "is eating 🍝");
-			usleep(philo->data->time_to_eat);
-			release_fork(philo->left_fork);
-			release_fork(philo->right_fork);
-			print_action(philo, "is sleeping 😴");
-			usleep(philo->data->time_to_sleep);
+			philo->data->start_time = get_time_in_ms();
+			// Try to take forks
+			if (philo->times_eaten == 0
+				&& philo->data->start_time == philo->data->time_to_die)
+			{
+				print_action(philo, "died 💀");
+				break ;
+			} 
+			if (philo->last_meal_time == philo->data->time_to_die)
+			{
+				print_action(philo, "died 💀");
+				break ;
+			} 
+			if (take_fork(philo->left_fork) && take_fork(philo->right_fork))
+			{
+				print_action(philo, "is eating 🍝");
+				usleep(philo->data->time_to_eat);
+				philo->times_eaten += 1;
+				philo->last_meal_time = get_time_in_ms();
+				release_fork(philo->left_fork);
+				release_fork(philo->right_fork);
+				print_action(philo, "is sleeping 😴");
+				usleep(philo->data->time_to_sleep);
+			}
+			else
+			{
+				// If you failed to take both forks, release any you took
+				release_fork(philo->left_fork);
+				release_fork(philo->right_fork);
+				print_action(philo, "is thinking 🧠");
+				usleep(philo->data->time_to_sleep);
+					// wait a bit before retrying
+			}
 		}
-		else
-		{
-			// If you failed to take both forks, release any you took
-			release_fork(philo->left_fork);
-			release_fork(philo->right_fork);
-			print_action(philo, "is thinking 🧠");
-			usleep(philo->data->time_to_sleep); // wait a bit before retrying
-		}
-	}
 	return (NULL);
 }
 
@@ -56,8 +73,10 @@ int	init_data(t_data *data, int argc, char **argv)
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);
-	data->num_of_times_each_philo_must_eat = (argc == 6) ? ft_atoi(argv[5]) :
-		-1; // Optional argument
+	if (argc == 6)
+		data->num_of_times_each_philo_must_eat = ft_atoi(argv[5]);
+	else
+		data->num_of_times_each_philo_must_eat = -1;
 	data->philos = malloc(sizeof(t_philo) * data->nb_philo);
 	data->forks = malloc(sizeof(t_fork) * data->nb_philo);
 	if (!data->philos || !data->forks)
