@@ -1,1 +1,3 @@
 # PHILOSOPHER
+
+what tha fuck

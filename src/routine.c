@@ -6,102 +6,155 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/04/30 15:44:43 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/05 15:27:51 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	handle_routine(t_data *data)
+int	check_if_dead(t_philo *philo)
 {
-	pthread_t	*threads;
-	int			i;
-
-	// Initialize threads array
-	threads = malloc(sizeof(pthread_t) * data->nb_philo);
-	if (!threads)
-		return (ERROR);
-	if (start_routine(data, threads) == ERROR)
-		return (ERROR);
-	return (SUCCESS);
+	pthread_mutex_lock(&philo->shared->death_mutex);
+	if (philo->shared->someone_died)
+	{
+		pthread_mutex_unlock(&philo->shared->death_mutex);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->shared->death_mutex);
+	return (0);
 }
 
-int	init_philosophers(t_philo *philo, t_fork *forks, t_data *data)
+int	take_fork(t_fork *fork)
 {
-	int	i;
-
-	i = 0;
-	while (i < data->nb_philo)
+	pthread_mutex_lock(&fork->mutex);
+	if (fork->is_taken == 0)
 	{
-		philo[i].id = i + 1; // to start at 1.
-		philo[i].times_eaten = 0;
-		philo[i].last_meal_time = get_time_in_ms();
-		philo[i].data = data;
-		philo[i].left_fork = &forks[i];
-		philo[i].right_fork = &forks[(i + 1) % data->nb_philo];
-		// calcul a revoir
-		if (pthread_mutex_init(&philo[i].meal_mutex, NULL) != 0)
+		fork->is_taken = 1;
+		return (fork->is_taken);
+	}
+	else
+		pthread_mutex_unlock(&fork->mutex);
+	return (0);
+}
+
+void	release_fork(t_fork *fork)
+{
+	pthread_mutex_lock(&fork->mutex);
+	fork->is_taken = 0;
+	pthread_mutex_unlock(&fork->mutex);
+}
+
+void	*routine(void *args)
+{
+	t_philo	*philo;
+	t_fork	*first;
+	t_fork	*second;
+
+	philo = (t_philo *)args;
+	while (check_if_dead(philo) != 1)
+	{
+		// 1. Define which forks
+		if (philo->id % 2 == 0)
 		{
-			printf("ERROR: failed mutex init\n");
-			return (ERROR);
+			first = philo->left_fork;
+			second = philo->right_fork;
 		}
-		i++;
-	}
-}
-
-int	init_forks(t_fork *forks, int num)
-{
-	int	i;
-
-	i = 0;
-	while (i < num)
-	{
-		forks[i].is_taken = 0;
-		if (pthread_mutex_init(&forks[i].mutex, NULL) != 0)
+		else
 		{
-			printf("ERROR : failed mutex init\n");
-			return (ERROR);
+			first = philo->right_fork;
+			second = philo->left_fork;
 		}
-		i++;
-	}
-	return (SUCCESS);
-}
-
-int	start_routine(t_data *data, pthread_t *thread)
-{
-	int	i;
-
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		if (pthread_create(&thread[i], NULL, routine, &data->philos[i]) != 0)
+		// 2. Eat
+		if ((take_fork(first) == 1) && (take_fork(second) == 1))
 		{
-			printf("ERROR : pthread_create didn't work\n");
-			free(thread);
-			return (ERROR);
+			if (check_if_dead(philo) == 1) // Dead before eating
+			{
+				release_fork(first);
+				release_fork(second);
+				break ;
+			}
+			pthread_mutex_lock(philo->print_mutex);
+			printf("%ld Philosopher %d is eating\n", timestamp(philo->shared),
+				philo->id);
+			philo->meals_eaten++;
+			pthread_mutex_unlock(philo->print_mutex);
+			pthread_mutex_lock(philo->meal_mutex);
+			philo->last_meal_time = get_time_in_ms();
+			pthread_mutex_unlock(philo->meal_mutex);
+			usleep(philo->rules->time_to_eat * 1000);
+			// 3. Drop forks
+			release_fork(first);
+			release_fork(second);
 		}
-		i++;
+		else
+		{
+			// 4. Think
+			pthread_mutex_lock(philo->print_mutex);
+			printf("%ld Philosopher %d is thinking.\n",
+				timestamp(philo->shared), philo->id);
+			pthread_mutex_unlock(philo->print_mutex);
+			// usleep(100);
+		}
+		// 5. Sleep
+		if (check_if_dead(philo) == 1)
+			break ;
+		pthread_mutex_lock(philo->print_mutex);
+		printf("%ld Philosopher %d is sleeping\n", timestamp(philo->shared),
+			philo->id);
+		pthread_mutex_unlock(philo->print_mutex);
+		usleep(philo->rules->time_to_sleep * 1000);
 	}
-	i = 0;
-	while (i < data->nb_philo)
-	{
-		pthread_join(thread[i], NULL);
-		i++;
-	}
-	free(thread);
-	return (SUCCESS);
+	return (NULL);
 }
 
-void	destroy_mutex(t_philo *philo, pthread_mutex_t *print_mutex,
-		t_fork *forks)
+void	*monitor_routine(void *args)
 {
-	int	i;
+	t_monitor_data	*monitor_data;
+	int				i;
+	int				finished;
+	long			time_since_meal;
 
-	pthread_mutex_destroy(print_mutex);
-	i = 0;
-	while (i < philo->num)
+	monitor_data = (t_monitor_data *)args;
+	while (1)
 	{
-		pthread_mutex_destroy(&forks[i].mutex);
-		i++;
+		i = 0;
+		finished = 0;
+		pthread_mutex_lock(&monitor_data->shared->death_mutex);
+		if (monitor_data->shared->someone_died == 1)
+		{
+			pthread_mutex_unlock(&monitor_data->shared->death_mutex);
+			return (NULL); // Stop monitoring, someone already died
+		}
+		pthread_mutex_unlock(&monitor_data->shared->death_mutex);
+		while (i < monitor_data->num_of_philo)
+		{
+			pthread_mutex_lock(monitor_data->philos[i].meal_mutex);
+			time_since_meal = get_time_in_ms()
+				- monitor_data->philos[i].last_meal_time;
+			pthread_mutex_unlock(monitor_data->philos[i].meal_mutex);
+			if (time_since_meal > monitor_data->time_to_die)
+			{
+				pthread_mutex_lock(monitor_data->philos[i].print_mutex);
+				printf("%lld Philosopher %d died.\n", get_time_in_ms()
+					- monitor_data->shared->start_time,
+					monitor_data->philos[i].id);
+				pthread_mutex_unlock(monitor_data->philos[i].print_mutex);
+				pthread_mutex_lock(&monitor_data->shared->death_mutex);
+				monitor_data->shared->someone_died = 1;
+				pthread_mutex_unlock(&monitor_data->shared->death_mutex);
+				return (NULL);
+			}
+			if (monitor_data->philos[i].meals_eaten >= monitor_data->philos[i].rules->num_must_eat)
+				finished++;
+			i++;
+		}
+		if (finished == monitor_data->num_of_philo)
+		{
+			pthread_mutex_lock(&monitor_data->shared->death_mutex);
+			monitor_data->shared->someone_died = 1;
+			pthread_mutex_unlock(&monitor_data->shared->death_mutex);
+			return (NULL);
+		}
+		usleep(1000);
 	}
 }

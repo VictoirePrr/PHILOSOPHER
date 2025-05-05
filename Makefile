@@ -6,7 +6,7 @@
 #    By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 15:32:31 by vicperri          #+#    #+#              #
-#    Updated: 2025/04/30 11:23:47 by vicperri         ###   ########lyon.fr    #
+#    Updated: 2025/05/05 15:19:54 by vicperri         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,6 @@ SRC_DIR := src/
 INCLUDES := include/
 SRC := $(addprefix $(SRC_DIR), \
 	main.c \
-	parsing.c \
 	routine.c \
 	utils.c \
 )

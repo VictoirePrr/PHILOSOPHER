@@ -8,71 +8,69 @@
 # include <stdint.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include <sys/time.h>
 # include <unistd.h>
-
-# define ERROR -1
-# define SUCCESS 0
 # define LONG_LONG_INT 9223372036854775807
+
 typedef struct s_fork
 {
 	int is_taken;          // 1 = someone took the fork, 0 = free
 	pthread_mutex_t mutex; // protects the `is_taken`
 }					t_fork;
 
-typedef struct s_philo
+typedef struct s_rules
 {
-	int				id;
-	pthread_mutex_t	*print_mutex;
-	int				times_eaten;
-
-	long long		last_meal_time;
-	pthread_mutex_t meal_mutex; // protects last_meal_time
-
-	t_fork			*left_fork;
-	t_fork			*right_fork;
-
-	struct s_data *data; // shared global data
-}					t_philo;
-typedef struct s_data
-{
-	int				nb_philo;
+	int				num_of_philo;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				num_of_times_each_philo_must_eat;
+	int				num_must_eat;
+}					t_rules;
 
-	long long		start_time;
-	int				stop_simulation;
-	pthread_mutex_t	stop_mutex;
-	pthread_mutex_t	print_mutex;
+typedef struct s_shared
+{
+	int				someone_died;
+	pthread_mutex_t	death_mutex;
+	int				all_ate_enough;
+	long			start_time;
+}					t_shared;
+typedef struct s_philo
+{
+	pthread_t		monitor;
+	pthread_mutex_t	*print_mutex;
+	int				meals_eaten;
+	int				id;
+	long			last_meal_time;
+	pthread_mutex_t	*meal_mutex;
+	t_rules			*rules;
+	t_shared		*shared;
+	t_fork			*right_fork;
+	t_fork			*left_fork;
+
+}					t_philo;
+
+typedef struct s_monitor_data
+{
 	t_philo			*philos;
-	t_fork			*forks;
-}					t_data;
+	int				time_to_die;
+	int				num_of_philo;
+	t_shared		*shared;
+}					t_monitor_data;
 
 // main
-void				*routine(void *arg);
-t_data				*init_data(t_data *data, int argc, char **argv);
-
-// parsing
-int					check_ascii(char *argj);
-int					parse_args(char **argv, t_philo *philo);
+int					main(int argc, char **argv);
+int					init_rules(t_rules *rules, int argc, char **argv);
 
 // routine
-int					handle_routine(t_data *data);
-int					init_forks(t_fork *forks, int num);
-int					start_routine(t_data *data, pthread_t *thread);
-int					init_philosophers(t_philo *philo, t_fork *forks,
-						t_data *data);
-void				destroy_mutex(t_philo *philo, pthread_mutex_t *print_mutex,
-						t_fork *forks);
+int					check_if_dead(t_philo *philo);
+int					take_fork(t_fork *fork);
+void				release_fork(t_fork *fork);
+void				*routine(void *args);
+void				*monitor_routine(void *args);
 
 // utils
-int					take_fork(t_fork *fork);
 long				ft_atoi(const char *nptr);
-char				*ft_strtrim(const char *s1, const char *set);
-void				release_fork(t_fork *fork);
-void				print_action(t_philo *philo, char *str);
-char				*ft_substr(char const *s, int start, int len);
-char				*ft_strchr(const char *s, int c);
-char				*ft_strdup(const char *s1);
+long long			get_time_in_ms(void);
+long				timestamp(t_shared *shared);
+int					check_ascii(char *argj);
 #endif
