@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/05 15:27:51 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/05 16:21:09 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	*routine(void *args)
 		}
 		// 2. Eat
 		if ((take_fork(first) == 1) && (take_fork(second) == 1))
-		{
+		{ // if the first is good but not the second
 			if (check_if_dead(philo) == 1) // Dead before eating
 			{
 				release_fork(first);
