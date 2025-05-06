@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/05 15:22:18 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/06 13:39:15 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,13 @@ int	main(int argc, char **argv)
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	meal_mutex;
 	int				i;
-	int				ids[5];
+	int				*ids;
 
 	i = 0;
 	////////////////////parsing///////////////
 	if (init_rules(&rules, argc, argv) == 1)
 		return (1);
+	ids = malloc(rules.num_of_philo * sizeof(int));
 	///////////init mutexes//////////////////
 	pthread_mutex_init(&print_mutex, NULL);
 	pthread_mutex_init(&meal_mutex, NULL);
@@ -68,6 +69,7 @@ int	main(int argc, char **argv)
 	pthread_mutex_init(&shared.death_mutex, NULL);
 	shared.someone_died = 0;
 	shared.all_ate_enough = 0;
+	shared.creation = 0;
 	/////////init philo struct/////////////////
 	philo = malloc(rules.num_of_philo * sizeof(t_philo));
 	///////////init threads philos////////////////
@@ -101,6 +103,7 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i < rules.num_of_philo)
 	{
+		shared.creation = i;
 		pthread_create(&threads[i], NULL, routine, &philo[i]);
 		i++;
 	}
@@ -115,10 +118,11 @@ int	main(int argc, char **argv)
 	while (i < rules.num_of_philo)
 	{
 		pthread_join(threads[i], NULL);
-		// printf("Philosopher %d died.\n", i + 1);
 		i++;
 	}
 	pthread_mutex_destroy(&print_mutex);
+	pthread_mutex_destroy(&meal_mutex);
+	pthread_mutex_destroy(&shared.death_mutex);
 	return (0);
 }
 

@@ -10,7 +10,15 @@
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
+
 # define LONG_LONG_INT 9223372036854775807
+# define RESET "\033[0m"
+# define BLUE "\033[34m"
+# define RED "\033[1;31m"
+# define GREEN "\033[38;5;28m"
+# define YELLOW "\033[33m"
+#define HOT_PINK   "\033[38;5;198m"
+# define LIGHT_PINK "\033[38;5;218m"
 
 typedef struct s_fork
 {
@@ -29,6 +37,7 @@ typedef struct s_rules
 
 typedef struct s_shared
 {
+	int				creation;
 	int				someone_died;
 	pthread_mutex_t	death_mutex;
 	int				all_ate_enough;
