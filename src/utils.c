@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/05 15:21:12 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/07 14:03:45 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ long	timestamp(t_shared *shared)
 
 int	check_ascii(char *argj)
 {
-	int j;
+	int	j;
 
 	j = 0;
 	while (argj[j])
@@ -65,4 +65,13 @@ int	check_ascii(char *argj)
 		j++;
 	}
 	return (0);
+}
+
+void	my_usleep(long duration)
+{
+	long	start_time;
+
+	start_time = get_time_in_ms();
+	while ((get_time_in_ms() - start_time) < duration)
+		usleep(100);
 }

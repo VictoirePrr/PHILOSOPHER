@@ -153,7 +153,7 @@ void	*routine(void *args)
 		printf("%ld Philosopher %d is thinking.\n", timestamp(philo->shared),
 			philo->id);
 		pthread_mutex_unlock(philo->print_mutex);
-		usleep(100);
+		my_usleep(100);
 		// 2. Define which forks
 		if (philo->id % 2 == 0)
 		{
@@ -182,7 +182,7 @@ void	*routine(void *args)
 			pthread_mutex_lock(philo->meal_mutex);
 			philo->last_meal_time = get_time_in_ms();
 			pthread_mutex_unlock(philo->meal_mutex);
-			usleep(philo->rules->time_to_eat * 1000);
+			my_usleep(philo->rules->time_to_eat * 1000);
 			// 4. Drop forks
 			release_fork(first);
 			release_fork(second);
@@ -194,7 +194,7 @@ void	*routine(void *args)
 		printf("%ld Philosopher %d is sleeping\n", timestamp(philo->shared),
 			philo->id);
 		pthread_mutex_unlock(philo->print_mutex);
-		usleep(philo->rules->time_to_sleep * 1000);
+		my_usleep(philo->rules->time_to_sleep * 1000);
 	}
 	return (NULL);
 }
@@ -247,7 +247,7 @@ void	*monitor_routine(void *args)
 			pthread_mutex_unlock(&monitor_data->shared->death_mutex);
 			return (NULL);
 		}
-		usleep(1000);
+		my_usleep(1000);
 	}
 }
 

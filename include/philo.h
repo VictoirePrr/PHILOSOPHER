@@ -17,7 +17,7 @@
 # define RED "\033[1;31m"
 # define GREEN "\033[38;5;28m"
 # define YELLOW "\033[33m"
-#define HOT_PINK   "\033[38;5;198m"
+# define HOT_PINK "\033[38;5;198m"
 # define LIGHT_PINK "\033[38;5;218m"
 
 typedef struct s_fork
@@ -37,9 +37,10 @@ typedef struct s_rules
 
 typedef struct s_shared
 {
-	int				creation;
 	int				someone_died;
 	pthread_mutex_t	death_mutex;
+	pthread_mutex_t	urgency_mutex;
+	int				vip;
 	int				all_ate_enough;
 	long			start_time;
 }					t_shared;
@@ -50,6 +51,7 @@ typedef struct s_philo
 	int				meals_eaten;
 	int				id;
 	long			last_meal_time;
+	int				urgency;
 	pthread_mutex_t	*meal_mutex;
 	t_rules			*rules;
 	t_shared		*shared;
@@ -72,7 +74,7 @@ int					init_rules(t_rules *rules, int argc, char **argv);
 
 // routine
 int					check_if_dead(t_philo *philo);
-int					take_fork(t_fork *fork);
+int					take_fork(t_fork *fork, t_philo *philo);
 void				release_fork(t_fork *fork);
 void				*routine(void *args);
 void				*monitor_routine(void *args);
@@ -82,4 +84,5 @@ long				ft_atoi(const char *nptr);
 long long			get_time_in_ms(void);
 long				timestamp(t_shared *shared);
 int					check_ascii(char *argj);
+void				my_usleep(long duration);
 #endif
