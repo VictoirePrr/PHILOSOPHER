@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/07 16:54:01 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/09 14:06:26 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ int	main(int argc, char **argv)
 	shared.someone_died = 0;
 	shared.all_ate_enough = 0;
 	shared.start_time = 0;
-	shared.vip = 0;
 	/////////init philo struct/////////////////
 	philo = malloc(rules.num_of_philo * sizeof(t_philo));
 	///////////init threads philos////////////////
@@ -99,6 +98,8 @@ int	main(int argc, char **argv)
 		philo[i].urgency = 0;
 		philo[i].meal_mutex = &meal_mutex;
 		philo[i].shared = &shared;
+		philo[i].time_left = 0;
+		philo[i].wait_time = 0;
 		i++;
 	}
 	/////////////start routine///////////////////////

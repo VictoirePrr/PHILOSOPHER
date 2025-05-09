@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/07 17:23:25 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/09 15:35:56 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,19 @@ int	check_if_dead(t_philo *philo)
 
 int	take_fork(t_fork *fork, t_philo *philo)
 {
-	if (philo->urgency == 0 || philo->shared->vip == 0)
-		my_usleep(100);
+	int	wait_time;
+
+	pthread_mutex_lock(&philo->shared->urgency_mutex);
+	if (philo->urgency >= 50)
+		wait_time = 10 + (100 - philo->urgency) * 2;
+	else
+		wait_time = 200; // Default delay for chill philosophers
+	pthread_mutex_unlock(&philo->shared->urgency_mutex);
+	if (wait_time < 1)
+		wait_time = 1;
+	if (wait_time > 200)
+		wait_time = 200;
+	my_usleep(wait_time);
 	pthread_mutex_lock(&fork->mutex);
 	if (fork->is_taken == 0)
 	{
@@ -39,12 +50,14 @@ int	take_fork(t_fork *fork, t_philo *philo)
 	return (0);
 }
 
-void	release_fork(t_fork *fork)
+void	release_fork(t_fork *fork, t_philo *philo)
 {
 	pthread_mutex_lock(&fork->mutex);
 	fork->is_taken = 0;
 	pthread_mutex_unlock(&fork->mutex);
-	printf(YELLOW ">>> Fork released!\n" RESET);
+	pthread_mutex_lock(philo->print_mutex);
+	printf(YELLOW ">>> Fork released by %d !\n" RESET, philo->id);
+	pthread_mutex_unlock(philo->print_mutex);
 }
 
 int	eat(t_philo *philo, t_fork *first, t_fork *second)
@@ -58,7 +71,7 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 		pthread_mutex_unlock(philo->print_mutex);
 		if (check_if_dead(philo) == 1)
 		{
-			release_fork(first);
+			release_fork(first, philo);
 			return (1);
 		}
 		if (take_fork(second, philo) == 1)
@@ -69,8 +82,8 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 			pthread_mutex_unlock(philo->print_mutex);
 			if (check_if_dead(philo) == 1)
 			{
-				release_fork(second);
-				release_fork(first);
+				release_fork(second, philo);
+				release_fork(first, philo);
 				return (1);
 			}
 			pthread_mutex_lock(philo->meal_mutex);
@@ -83,10 +96,10 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 			pthread_mutex_lock(philo->meal_mutex);
 			philo->meals_eaten++;
 			pthread_mutex_unlock(philo->meal_mutex);
-			my_usleep(philo->rules->time_to_eat * 1000);
+			my_usleep(philo->rules->time_to_eat);
 			// 3. Drop forks
-			release_fork(second);
-			release_fork(first);
+			release_fork(second, philo);
+			release_fork(first, philo);
 		}
 		else
 		{
@@ -94,8 +107,9 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 			printf(LIGHT_PINK "[%ld] %d couldn't take fork 2." RESET "\n",
 				timestamp(philo->shared), philo->id);
 			pthread_mutex_unlock(philo->print_mutex);
-			release_fork(first); // if the first is good but not the second
-			return (1);          // they should retry immediatly
+			release_fork(first, philo);
+			// if the first is good but not the second
+			return (1); // they should retry immediatly
 		}
 	}
 	else
@@ -106,8 +120,10 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 		pthread_mutex_unlock(philo->print_mutex);
 		return (1); // they should retry immediatly
 	}
+	pthread_mutex_lock(philo->print_mutex);
 	printf(YELLOW "[%ld] %d finished eating." RESET "\n",
 		timestamp(philo->shared), philo->id);
+	pthread_mutex_unlock(philo->print_mutex);
 	return (0);
 }
 
@@ -130,13 +146,16 @@ void	p_sleep(t_philo *philo)
 	printf(BLUE "[%ld] %d is sleeping." RESET "\n", timestamp(philo->shared),
 		philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
-	my_usleep(philo->rules->time_to_sleep * 1000);
+	my_usleep(philo->rules->time_to_sleep);
 }
+
 void	*routine(void *args)
 {
 	t_philo	*philo;
 	t_fork	*first;
 	t_fork	*second;
+	int		wait_time;
+	int		urgency;
 
 	philo = (t_philo *)args;
 	while (philo->shared->start_time == 0)
@@ -144,7 +163,6 @@ void	*routine(void *args)
 	pthread_mutex_lock(philo->meal_mutex);
 	philo->last_meal_time = get_time_in_ms();
 	pthread_mutex_unlock(philo->meal_mutex);
-	// 1. Define which forks
 	if (philo->id % 2 == 0)
 	{
 		first = philo->left_fork;
@@ -158,25 +176,42 @@ void	*routine(void *args)
 	}
 	while (check_if_dead(philo) != 1)
 	{
-		if (philo->urgency == 1)
+		pthread_mutex_lock(&philo->shared->urgency_mutex);
+		urgency = philo->urgency;
+		pthread_mutex_unlock(&philo->shared->urgency_mutex);
+		if (urgency >= 50)
 		{
-			while (philo->urgency == 1 && check_if_dead(philo) != 1)
+			wait_time = 10 + ((100 - urgency) * 2);
+			if (wait_time < 1)
+				wait_time = 1;
+			if (wait_time > 100)
+				wait_time = 100;
+			if (wait_time < 2)
+				wait_time = 2;
+			while (urgency >= 50 && check_if_dead(philo) != 1)
 			{
 				if (eat(philo, first, second) == 0)
-					break ; // Successfully ate, exit urgent loop
-				my_usleep(100);
+					break ;
+				my_usleep(wait_time);
+				pthread_mutex_lock(&philo->shared->urgency_mutex);
+				urgency = philo->urgency;
+				pthread_mutex_unlock(&philo->shared->urgency_mutex);
 			}
 		}
 		else
 		{
 			think(philo);
 			if (eat(philo, first, second) == 0)
-				p_sleep(philo);
+			{
+				pthread_mutex_lock(&philo->shared->urgency_mutex);
+				if (philo->urgency < 50)
+					p_sleep(philo);
+				pthread_mutex_unlock(&philo->shared->urgency_mutex);
+			}
 		}
 	}
 	return (NULL);
 }
-
 void	*monitor_routine(void *args)
 {
 	t_monitor_data	*monitor_data;
@@ -184,6 +219,7 @@ void	*monitor_routine(void *args)
 	int				finished;
 	long			time_since_meal;
 	int				meals;
+	int				urgency;
 
 	monitor_data = (t_monitor_data *)args;
 	while (1)
@@ -194,7 +230,7 @@ void	*monitor_routine(void *args)
 		if (monitor_data->shared->someone_died == 1)
 		{
 			pthread_mutex_unlock(&monitor_data->shared->death_mutex);
-			return (NULL); // Stop monitoring, someone already died
+			return (NULL);
 		}
 		pthread_mutex_unlock(&monitor_data->shared->death_mutex);
 		while (i < monitor_data->num_of_philo)
@@ -202,24 +238,17 @@ void	*monitor_routine(void *args)
 			pthread_mutex_lock(monitor_data->philos[i].meal_mutex);
 			time_since_meal = get_time_in_ms()
 				- monitor_data->philos[i].last_meal_time;
-			// printf("time since meal : %ld\n", time_since_meal);
 			pthread_mutex_unlock(monitor_data->philos[i].meal_mutex);
-			if (time_since_meal >= monitor_data->time_to_die / 2)
+			urgency = (time_since_meal * 100) / monitor_data->time_to_die;
+			if (urgency >= 50)
 			{
-				pthread_mutex_lock(monitor_data->philos[i].print_mutex);
-				printf(RED "[%ld] %d almost dead wesh." RESET "\n",
-					timestamp(monitor_data->shared),
-					monitor_data->philos[i].id);
-				pthread_mutex_unlock(monitor_data->philos[i].print_mutex);
 				pthread_mutex_lock(&monitor_data->shared->urgency_mutex);
-				monitor_data->shared->vip = 1;
-				monitor_data->philos[i].urgency = 1;
+				monitor_data->philos[i].urgency = urgency;
 				pthread_mutex_unlock(&monitor_data->shared->urgency_mutex);
 			}
 			else
 			{
 				pthread_mutex_lock(&monitor_data->shared->urgency_mutex);
-				monitor_data->shared->vip = 0;
 				monitor_data->philos[i].urgency = 0;
 				pthread_mutex_unlock(&monitor_data->shared->urgency_mutex);
 			}
@@ -252,6 +281,6 @@ void	*monitor_routine(void *args)
 			pthread_mutex_unlock(&monitor_data->shared->death_mutex);
 			return (NULL);
 		}
-		my_usleep(500);
+		my_usleep(monitor_data->time_to_die / 50);
 	}
 }

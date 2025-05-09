@@ -40,7 +40,6 @@ typedef struct s_shared
 	int				someone_died;
 	pthread_mutex_t	death_mutex;
 	pthread_mutex_t	urgency_mutex;
-	int				vip;
 	int				all_ate_enough;
 	long			start_time;
 }					t_shared;
@@ -52,6 +51,8 @@ typedef struct s_philo
 	int				id;
 	long			last_meal_time;
 	int				urgency;
+	int				time_left;
+	int				wait_time;
 	pthread_mutex_t	*meal_mutex;
 	t_rules			*rules;
 	t_shared		*shared;
@@ -75,7 +76,7 @@ int					init_rules(t_rules *rules, int argc, char **argv);
 // routine
 int					check_if_dead(t_philo *philo);
 int					take_fork(t_fork *fork, t_philo *philo);
-void				release_fork(t_fork *fork);
+void				release_fork(t_fork *fork, t_philo *philo);
 void				*routine(void *args);
 void				*monitor_routine(void *args);
 
