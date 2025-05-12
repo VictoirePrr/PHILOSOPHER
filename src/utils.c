@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/09 15:27:42 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 11:24:58 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,11 +67,15 @@ int	check_ascii(char *argj)
 	return (0);
 }
 
-void	my_usleep(long duration)
+void	my_usleep(long duration, t_philo *philo)
 {
 	long	start_time;
 
 	start_time = get_time_in_ms();
 	while ((get_time_in_ms() - start_time) < duration)
+	{
+		if (check_if_dead(philo))
+			break ;
 		usleep(100);
+	}
 }

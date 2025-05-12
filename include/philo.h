@@ -12,6 +12,7 @@
 # include <unistd.h>
 
 # define LONG_LONG_INT 9223372036854775807
+
 # define RESET "\033[0m"
 # define BLUE "\033[34m"
 # define RED "\033[1;31m"
@@ -39,8 +40,6 @@ typedef struct s_shared
 {
 	int				someone_died;
 	pthread_mutex_t	death_mutex;
-	pthread_mutex_t	urgency_mutex;
-	int				all_ate_enough;
 	long			start_time;
 }					t_shared;
 typedef struct s_philo
@@ -50,14 +49,13 @@ typedef struct s_philo
 	int				meals_eaten;
 	int				id;
 	long			last_meal_time;
-	int				urgency;
-	int				time_left;
-	int				wait_time;
 	pthread_mutex_t	*meal_mutex;
 	t_rules			*rules;
 	t_shared		*shared;
 	t_fork			*right_fork;
+	int				right_fork_id;
 	t_fork			*left_fork;
+	int				left_fork_id;
 
 }					t_philo;
 
@@ -69,21 +67,47 @@ typedef struct s_monitor_data
 	t_shared		*shared;
 }					t_monitor_data;
 
+typedef struct s_data
+{
+	t_rules			rules;
+	t_shared		shared;
+	t_philo			*philos;
+	t_fork			*forks;
+	pthread_t		*threads;
+	pthread_t		monitor;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	meal_mutex;
+	int				*ids;
+}					t_data;
+
 // main
 int					main(int argc, char **argv);
+int					create_threads(t_data *data);
+
+// init_and_clean
 int					init_rules(t_rules *rules, int argc, char **argv);
+int					init_mutexes(t_data *data);
+int					init_philosophers(t_data *data);
+int					join_and_cleanup(t_data *data);
 
 // routine
-int					check_if_dead(t_philo *philo);
-int					take_fork(t_fork *fork, t_philo *philo);
-void				release_fork(t_fork *fork, t_philo *philo);
 void				*routine(void *args);
 void				*monitor_routine(void *args);
+
+// routine utils
+int					check_if_dead(t_philo *philo);
+int					take_fork(t_fork *fork);
+void				release_fork(t_fork *fork);
+
+// rules
+int					p_sleep(t_philo *philo);
+int					think(t_philo *philo);
+int					eat(t_philo *philo, t_fork *first, t_fork *second);
 
 // utils
 long				ft_atoi(const char *nptr);
 long long			get_time_in_ms(void);
 long				timestamp(t_shared *shared);
 int					check_ascii(char *argj);
-void				my_usleep(long duration);
+void				my_usleep(long duration, t_philo *philo);
 #endif
