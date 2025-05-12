@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 14:27:41 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 15:53:39 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,43 +37,7 @@ int	init_rules(t_rules *rules, int argc, char **argv)
 	return (0);
 }
 
-static int	init_basic_mutexes(t_data *data)
-{
-	pthread_mutex_init(&data->print_mutex, NULL);
-	pthread_mutex_init(&data->meal_mutex, NULL);
-	pthread_mutex_init(&data->shared.death_mutex, NULL);
-	data->shared.someone_died = 0;
-	data->shared.start_time = 0;
-	return (0);
-}
-
-static int	init_fork_mutexes(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	data->forks = malloc(data->rules.num_of_philo * sizeof(t_fork));
-	if (!data->forks)
-		return (1);
-	while (i < data->rules.num_of_philo)
-	{
-		pthread_mutex_init(&data->forks[i].mutex, NULL);
-		data->forks[i].is_taken = 0;
-		i++;
-	}
-	return (0);
-}
-
-int	init_mutexes(t_data *data)
-{
-	if (init_basic_mutexes(data) != 0)
-		return (1);
-	if (init_fork_mutexes(data) != 0)
-		return (1);
-	return (0);
-}
-
-static void	init_philo_data(t_data *data, int i)
+void	init_philo_data(t_data *data, int i)
 {
 	data->ids[i] = i + 1;
 	data->philos[i].id = data->ids[i];

@@ -6,27 +6,13 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 15:25:53 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/12 15:50:11 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void	init_forks(t_philo *philo, t_fork **first, t_fork **second)
-{
-	if (philo->left_fork_id < philo->right_fork_id)
-	{
-		*first = philo->left_fork;
-		*second = philo->right_fork;
-	}
-	else
-	{
-		*first = philo->right_fork;
-		*second = philo->left_fork;
-	}
-}
-
-static int	should_philosopher_stop(t_philo *philo)
+int	should_philosopher_stop(t_philo *philo)
 {
 	int	meals;
 
@@ -65,7 +51,7 @@ void	*routine(void *args)
 	return (NULL);
 }
 
-static int	check_philosopher_status(t_monitor_data *data, int i)
+int	check_philosopher_status(t_monitor_data *data, int i)
 {
 	long	time_since_meal;
 	int		meals;
@@ -88,17 +74,7 @@ static int	check_philosopher_status(t_monitor_data *data, int i)
 	return (meals >= data->philos[i].rules->num_must_eat);
 }
 
-static int	check_death_status(t_shared *shared)
-{
-	int	is_dead;
-
-	pthread_mutex_lock(&shared->death_mutex);
-	is_dead = shared->someone_died;
-	pthread_mutex_unlock(&shared->death_mutex);
-	return (is_dead);
-}
-
-static int	check_all_philosophers(t_monitor_data *data)
+int	check_all_philosophers(t_monitor_data *data)
 {
 	int	i;
 	int	finished;

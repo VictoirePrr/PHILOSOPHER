@@ -94,20 +94,31 @@ int					join_and_cleanup(t_data *data);
 void				*routine(void *args);
 void				*monitor_routine(void *args);
 
-// routine utils
+// routine_utils
 int					check_if_dead(t_philo *philo);
 int					take_fork(t_fork *fork);
+int					check_death_status(t_shared *shared);
 void				release_fork(t_fork *fork);
+void				init_forks(t_philo *philo, t_fork **first, t_fork **second);
 
 // rules
 int					p_sleep(t_philo *philo);
 int					think(t_philo *philo);
 int					eat(t_philo *philo, t_fork *first, t_fork *second);
+int					handle_second_fork(t_philo *philo, t_fork *first,
+						t_fork *second);
+
+// utils_rules
+int					print_fork_status(t_philo *philo, int fork_num);
+int					check_meals_completed(t_philo *philo);
+int					update_meal_time(t_philo *philo);
+int					print_eating(t_philo *philo);
+void				safe_release_both(t_fork *first, t_fork *second);
 
 // utils
-long				ft_atoi(const char *nptr);
-long long			get_time_in_ms(void);
-long				timestamp(t_shared *shared);
 int					check_ascii(char *argj);
+long				ft_atoi(const char *nptr);
+long				timestamp(t_shared *shared);
+long long			get_time_in_ms(void);
 void				my_usleep(long duration, t_philo *philo);
 #endif
