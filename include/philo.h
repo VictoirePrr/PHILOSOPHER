@@ -82,6 +82,7 @@ typedef struct s_data
 
 // main
 int					main(int argc, char **argv);
+void				*routine(void *args);
 int					create_threads(t_data *data);
 
 // init_and_clean
@@ -91,8 +92,11 @@ int					init_philosophers(t_data *data);
 int					join_and_cleanup(t_data *data);
 
 // routine
-void				*routine(void *args);
 void				*monitor_routine(void *args);
+int					check_all_philosophers(t_monitor_data *data);
+int					check_philosopher_status(t_monitor_data *data, int i);
+int					report_death(t_monitor_data *data, int i);
+int					should_philosopher_stop(t_philo *philo);
 
 // routine_utils
 int					check_if_dead(t_philo *philo);
@@ -107,6 +111,7 @@ int					think(t_philo *philo);
 int					eat(t_philo *philo, t_fork *first, t_fork *second);
 int					handle_second_fork(t_philo *philo, t_fork *first,
 						t_fork *second);
+int					handle_one_philo(t_philo *philo);
 
 // utils_rules
 int					print_fork_status(t_philo *philo, int fork_num);

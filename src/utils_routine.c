@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   routine_utils.c                                    :+:      :+:    :+:   */
+/*   utils_routine.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 10:49:07 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 15:49:04 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 15:06:19 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,15 +46,15 @@ void	release_fork(t_fork *fork)
 }
 void	init_forks(t_philo *philo, t_fork **first, t_fork **second)
 {
-	if (philo->left_fork_id < philo->right_fork_id)
-	{
-		*first = philo->left_fork;
-		*second = philo->right_fork;
-	}
-	else
+	if (philo->id % 2 == 0)
 	{
 		*first = philo->right_fork;
 		*second = philo->left_fork;
+	}
+	else
+	{
+		*first = philo->left_fork;
+		*second = philo->right_fork;
 	}
 }
 

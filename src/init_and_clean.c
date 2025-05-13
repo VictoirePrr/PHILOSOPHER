@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 15:53:39 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 15:34:08 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,12 @@ int	join_and_cleanup(t_data *data)
 	int	i;
 
 	i = 0;
-	if (pthread_join(data->threads[0], NULL) != 0)
-		return (1);
+	while (i < data->rules.num_of_philo)
+	{
+		if (pthread_join(data->threads[i], NULL) != 0)
+			return (1);
+		i++;
+	}
 	if (pthread_join(data->monitor, NULL) != 0)
 		return (1);
 	while (i < data->rules.num_of_philo)

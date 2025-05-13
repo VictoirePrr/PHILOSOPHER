@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:44:42 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 15:45:33 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 14:45:57 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ int	check_meals_completed(t_philo *philo)
 
 int	update_meal_time(t_philo *philo)
 {
+	if (check_if_dead(philo) == 1)
+		return (1);
 	pthread_mutex_lock(philo->meal_mutex);
 	philo->last_meal_time = get_time_in_ms();
 	philo->meals_eaten++;
@@ -50,11 +52,11 @@ int	update_meal_time(t_philo *philo)
 
 int	print_eating(t_philo *philo)
 {
+	if (check_if_dead(philo) == 1)
+		return (1);
 	pthread_mutex_lock(philo->print_mutex);
 	printf(HOT_PINK "[%ld] %d is eating." RESET "\n", timestamp(philo->shared),
 		philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	return (0);
 }
-
-

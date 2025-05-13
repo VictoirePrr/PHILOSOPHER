@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 10:51:01 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 15:46:03 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 14:46:33 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,25 @@ int	handle_second_fork(t_philo *philo, t_fork *first, t_fork *second)
 			safe_release_both(first, second);
 			return (1);
 		}
+		print_fork_status(philo, 1);
 		print_fork_status(philo, 2);
-		update_meal_time(philo);
-		print_eating(philo);
+		if (update_meal_time(philo) == 1)
+		{
+			safe_release_both(first, second);
+			return (1);
+		}
+		if (print_eating(philo) == 1)
+		{
+			safe_release_both(first, second);
+			return (1);
+		}
 		my_usleep(philo->rules->time_to_eat, philo);
 		safe_release_both(first, second);
+		if (check_if_dead(philo) == 1)
+		{
+			safe_release_both(first, second);
+			return (1);
+		}
 		if (check_meals_completed(philo))
 			return (1);
 		return (0);
@@ -47,7 +61,6 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 			release_fork(first);
 			return (1);
 		}
-		print_fork_status(philo, 1);
 		return (handle_second_fork(philo, first, second));
 	}
 	return (1);
@@ -57,11 +70,7 @@ int	think(t_philo *philo)
 {
 	if (check_if_dead(philo) == 1)
 		return (1);
-	pthread_mutex_lock(philo->print_mutex);
-	printf(GREEN "[%ld] %d is thinking." RESET "\n", timestamp(philo->shared),
-		philo->id);
-	pthread_mutex_unlock(philo->print_mutex);
-	my_usleep(100, philo);
+	usleep(100);
 	return (0);
 }
 
@@ -74,5 +83,26 @@ int	p_sleep(t_philo *philo)
 		philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	my_usleep(philo->rules->time_to_sleep, philo);
+	if (check_if_dead(philo) == 1)
+		return (1);
+	pthread_mutex_lock(philo->print_mutex);
+	printf(GREEN "[%ld] %d is thinking." RESET "\n", timestamp(philo->shared),
+		philo->id);
+	pthread_mutex_unlock(philo->print_mutex);
+	return (0);
+}
+
+int	handle_one_philo(t_philo *philo)
+{
+	if (philo->rules->num_of_philo == 1)
+	{
+		print_fork_status(philo, philo->right_fork_id);
+		my_usleep(philo->rules->time_to_die, philo);
+		pthread_mutex_lock(philo->print_mutex);
+		printf(RED "[%ld] %d died." RESET "\n", timestamp(philo->shared),
+			philo->id);
+		pthread_mutex_unlock(philo->print_mutex);
+		return (1);
+	}
 	return (0);
 }

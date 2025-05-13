@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 14:30:52 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/13 16:02:01 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ int	create_threads(t_data *data)
 	monitor_data = malloc(sizeof(t_monitor_data));
 	if (!monitor_data)
 		return (1);
-	data->shared.start_time = get_time_in_ms();
 	monitor_data->num_of_philo = data->rules.num_of_philo;
 	monitor_data->time_to_die = data->rules.time_to_die;
 	monitor_data->shared = &data->shared;
@@ -36,6 +35,7 @@ int	create_threads(t_data *data)
 		}
 		i++;
 	}
+	data->shared.start_time = get_time_in_ms();
 	if (pthread_create(&data->monitor, NULL, monitor_routine,
 			monitor_data) != 0)
 	{
@@ -43,6 +43,40 @@ int	create_threads(t_data *data)
 		return (1);
 	}
 	return (0);
+}
+
+void	*routine(void *args)
+{
+	t_philo	*philo;
+	t_fork	*first;
+	t_fork	*second;
+
+	philo = (t_philo *)args;
+	while (philo->shared->start_time == 0)
+	{
+		pthread_mutex_lock(philo->print_mutex);
+		printf(YELLOW "[%ld] %d WAITING...." RESET "\n",
+			timestamp(philo->shared), philo->id);
+		pthread_mutex_unlock(philo->print_mutex);
+		usleep(100);
+	}
+	if (philo->id % 2 == 0)
+		usleep(500);
+	init_forks(philo, &first, &second);
+	if (handle_one_philo(philo) == 1)
+		return (NULL);
+	pthread_mutex_lock(philo->meal_mutex);
+	philo->last_meal_time = get_time_in_ms();
+	pthread_mutex_unlock(philo->meal_mutex);
+	while (!should_philosopher_stop(philo))
+	{
+		if (think(philo) == 1)
+			break ;
+		if (eat(philo, first, second) == 0)
+			if (p_sleep(philo) == 1)
+				break ;
+	}
+	return (NULL);
 }
 
 int	main(int argc, char **argv)
