@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/13 16:02:01 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/14 14:41:25 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,30 @@ int	create_threads(t_data *data)
 		}
 		i++;
 	}
+	pthread_mutex_lock(&data->shared.death_mutex);
 	data->shared.start_time = get_time_in_ms();
+	pthread_mutex_unlock(&data->shared.death_mutex);
 	if (pthread_create(&data->monitor, NULL, monitor_routine,
 			monitor_data) != 0)
 	{
 		free(monitor_data);
 		return (1);
+	}
+	return (0);
+}
+
+static int	wait_for_start(t_philo *philo)
+{
+	int	started;
+
+	while (1)
+	{
+		pthread_mutex_lock(&philo->shared->death_mutex);
+		started = philo->shared->start_time != 0;
+		pthread_mutex_unlock(&philo->shared->death_mutex);
+		if (started)
+			break ;
+		my_usleep(1, philo);
 	}
 	return (0);
 }
@@ -52,16 +70,11 @@ void	*routine(void *args)
 	t_fork	*second;
 
 	philo = (t_philo *)args;
-	while (philo->shared->start_time == 0)
-	{
-		pthread_mutex_lock(philo->print_mutex);
-		printf(YELLOW "[%ld] %d WAITING...." RESET "\n",
-			timestamp(philo->shared), philo->id);
-		pthread_mutex_unlock(philo->print_mutex);
-		usleep(100);
-	}
+	if (wait_for_start(philo) != 0)
+		return (NULL);
 	if (philo->id % 2 == 0)
-		usleep(500);
+		usleep(300);
+		//my_usleep(philo->rules->time_to_eat / 2, philo);
 	init_forks(philo, &first, &second);
 	if (handle_one_philo(philo) == 1)
 		return (NULL);
@@ -70,11 +83,12 @@ void	*routine(void *args)
 	pthread_mutex_unlock(philo->meal_mutex);
 	while (!should_philosopher_stop(philo))
 	{
-		if (think(philo) == 1)
-			break ;
+		// if (think(philo) == 1)
+		// 	break ;
 		if (eat(philo, first, second) == 0)
 			if (p_sleep(philo) == 1)
 				break ;
+		usleep(100);
 	}
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/13 15:34:47 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/14 14:44:12 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ int	report_death(t_monitor_data *data, int i)
 	pthread_mutex_lock(&data->shared->death_mutex);
 	if (data->shared->someone_died == 0)
 	{
+		data->shared->someone_died = 1;
+		pthread_mutex_lock(data->philos[i].print_mutex);
 		printf(RED "[%ld] %d died." RESET "\n", timestamp(data->shared),
 			data->philos[i].id);
-		data->shared->someone_died = 1;
-		pthread_mutex_unlock(&data->shared->death_mutex);
-		return (1);
+		pthread_mutex_unlock(data->philos[i].print_mutex);
 	}
 	pthread_mutex_unlock(&data->shared->death_mutex);
 	return (1);
@@ -51,15 +51,15 @@ int	check_philosopher_status(t_monitor_data *data, int i)
 	time_since_meal = get_time_in_ms() - data->philos[i].last_meal_time;
 	meals = data->philos[i].meals_eaten;
 	pthread_mutex_unlock(data->philos[i].meal_mutex);
-	if (time_since_meal > data->time_to_die)
+	// Check death condition with proper timing
+	if (time_since_meal > (long)data->time_to_die)
 	{
 		status = report_death(data, i);
 		return (status);
 	}
-	if (data->philos[i].rules->num_must_eat == -1)
-		return (0);
-	if (meals >= data->philos[i].rules->num_must_eat)
-		return (1);
+	// Check if philosopher has completed their meals
+	if (data->philos[i].rules->num_must_eat != -1)
+		return (meals >= data->philos[i].rules->num_must_eat);
 	return (0);
 }
 
@@ -90,7 +90,7 @@ void	*monitor_routine(void *args)
 	{
 		if (check_all_philosophers(data))
 			break ;
-		my_usleep(data->time_to_die / 50, data->philos);
+		usleep(100);
 	}
 	free(data);
 	return (NULL);

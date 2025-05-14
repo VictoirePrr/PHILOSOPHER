@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:52:59 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 15:53:26 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/14 13:13:34 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,14 @@
 
 int	init_basic_mutexes(t_data *data)
 {
-	pthread_mutex_init(&data->print_mutex, NULL);
-	pthread_mutex_init(&data->meal_mutex, NULL);
-	pthread_mutex_init(&data->shared.death_mutex, NULL);
+	if (pthread_mutex_init(&data->print_mutex, NULL) != 0)
+		return (1);
+	if (pthread_mutex_init(&data->meal_mutex, NULL) != 0)
+		return (1);
+	if (pthread_mutex_init(&data->slow_mutex, NULL) != 0)
+		return (1);
+	if (pthread_mutex_init(&data->shared.death_mutex, NULL) != 0)
+		return (1);
 	data->shared.someone_died = 0;
 	data->shared.start_time = 0;
 	return (0);

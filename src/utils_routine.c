@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 10:49:07 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/13 15:06:19 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/14 13:56:22 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,26 @@
 
 int	check_if_dead(t_philo *philo)
 {
+	int	is_dead;
+
 	pthread_mutex_lock(&philo->shared->death_mutex);
-	if (philo->shared->someone_died)
-	{
-		pthread_mutex_unlock(&philo->shared->death_mutex);
-		return (1);
-	}
+	is_dead = philo->shared->someone_died;
 	pthread_mutex_unlock(&philo->shared->death_mutex);
-	return (0);
+	return (is_dead);
+}
+
+int	can_print(t_philo *philo)
+{
+	int	status;
+
+	pthread_mutex_lock(&philo->shared->death_mutex);
+	status = !philo->shared->someone_died;
+	pthread_mutex_unlock(&philo->shared->death_mutex);
+	return (status);
 }
 
 int	take_fork(t_fork *fork)
 {
-	
 	pthread_mutex_lock(&fork->mutex);
 	if (fork->is_taken == 0)
 	{
@@ -44,6 +51,7 @@ void	release_fork(t_fork *fork)
 	fork->is_taken = 0;
 	pthread_mutex_unlock(&fork->mutex);
 }
+
 void	init_forks(t_philo *philo, t_fork **first, t_fork **second)
 {
 	if (philo->id % 2 == 0)

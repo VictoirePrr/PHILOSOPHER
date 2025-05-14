@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/13 15:34:08 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/14 12:36:52 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void	init_philo_data(t_data *data, int i)
 	data->philos[i].id = data->ids[i];
 	data->philos[i].meals_eaten = 0;
 	data->philos[i].print_mutex = &data->print_mutex;
+	data->philos[i].slow_mutex = &data->slow_mutex;
 	data->philos[i].left_fork = &data->forks[i];
 	data->philos[i].left_fork_id = i;
 	data->philos[i].right_fork = &data->forks[(i + 1)
@@ -93,6 +94,7 @@ int	join_and_cleanup(t_data *data)
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->meal_mutex);
 	pthread_mutex_destroy(&data->shared.death_mutex);
+	pthread_mutex_destroy(&data->slow_mutex);
 	free(data->philos);
 	free(data->forks);
 	free(data->threads);

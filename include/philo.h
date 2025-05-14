@@ -42,10 +42,12 @@ typedef struct s_shared
 	pthread_mutex_t	death_mutex;
 	long			start_time;
 }					t_shared;
+
 typedef struct s_philo
 {
 	pthread_t		monitor;
 	pthread_mutex_t	*print_mutex;
+	pthread_mutex_t	*slow_mutex;
 	int				meals_eaten;
 	int				id;
 	long			last_meal_time;
@@ -77,6 +79,7 @@ typedef struct s_data
 	pthread_t		monitor;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	meal_mutex;
+	pthread_mutex_t	slow_mutex;
 	int				*ids;
 }					t_data;
 
@@ -104,7 +107,7 @@ int					take_fork(t_fork *fork);
 int					check_death_status(t_shared *shared);
 void				release_fork(t_fork *fork);
 void				init_forks(t_philo *philo, t_fork **first, t_fork **second);
-
+int					can_print(t_philo *philo);
 // rules
 int					p_sleep(t_philo *philo);
 int					think(t_philo *philo);
