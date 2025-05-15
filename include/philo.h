@@ -92,7 +92,7 @@ int					create_threads(t_data *data);
 int					init_rules(t_rules *rules, int argc, char **argv);
 int					init_mutexes(t_data *data);
 int					init_philosophers(t_data *data);
-int					join_and_cleanup(t_data *data);
+int					join_and_cleanup(t_data *data, int num);
 
 // routine
 void				*monitor_routine(void *args);
@@ -110,14 +110,11 @@ void				init_forks(t_philo *philo, t_fork **first, t_fork **second);
 int					can_print(t_philo *philo);
 // rules
 int					p_sleep(t_philo *philo);
-int					think(t_philo *philo);
 int					eat(t_philo *philo, t_fork *first, t_fork *second);
-int					handle_second_fork(t_philo *philo, t_fork *first,
-						t_fork *second);
 int					handle_one_philo(t_philo *philo);
 
 // utils_rules
-int					print_fork_status(t_philo *philo, int fork_num);
+int					print_fork_status(t_philo *philo);
 int					check_meals_completed(t_philo *philo);
 int					update_meal_time(t_philo *philo);
 int					print_eating(t_philo *philo);

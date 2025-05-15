@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/15 13:43:23 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 16:18:09 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,16 @@ int	check_ascii(char *argj)
 
 void	my_usleep(long duration, t_philo *philo)
 {
-	long	start_time;
+	long			start_time;
+	long			wait;
 
+	wait = (duration * 1000) * 0.80;
+	usleep(wait);
 	start_time = get_time_in_ms();
 	while ((get_time_in_ms() - start_time) < duration)
 	{
 		if (check_if_dead(philo))
 			break ;
-		usleep(400);
+		usleep(50);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:44:42 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/15 13:33:41 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 15:01:55 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,10 @@ void	safe_release_both(t_fork *first, t_fork *second)
 	release_fork(first);
 }
 
-int	print_fork_status(t_philo *philo, int fork_num)
+int	print_fork_status(t_philo *philo)
 {
 	if (!can_print(philo))
 		return (1);
-	(void)fork_num;
 	pthread_mutex_lock(philo->print_mutex);
 	printf("%ld %d has taken a fork\n", timestamp(philo->shared), philo->id);
 	pthread_mutex_unlock(philo->print_mutex);

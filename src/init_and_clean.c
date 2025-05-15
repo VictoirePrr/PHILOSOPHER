@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/15 13:52:25 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 17:06:45 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,12 +86,14 @@ int	init_philosophers(t_data *data)
 	return (0);
 }
 
-int	join_and_cleanup(t_data *data)
+int	join_and_cleanup(t_data *data, int num)
 {
 	int	i;
 
 	i = 0;
-	while (i < data->rules.num_of_philo)
+	if (num == -1)
+		num = data->rules.num_of_philo;
+	while (i < num)
 	{
 		if (pthread_join(data->threads[i], NULL) != 0)
 			return (1);
