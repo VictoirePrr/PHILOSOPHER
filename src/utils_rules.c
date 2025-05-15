@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:44:42 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/14 13:59:45 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 13:33:41 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ int	print_fork_status(t_philo *philo, int fork_num)
 {
 	if (!can_print(philo))
 		return (1);
+	(void)fork_num;
 	pthread_mutex_lock(philo->print_mutex);
-	printf(LIGHT_PINK "[%ld] %d has taken fork %d.\n", timestamp(philo->shared), philo->id,
-		fork_num);
+	printf("%ld %d has taken a fork\n", timestamp(philo->shared), philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	return (0);
 }
@@ -57,10 +57,7 @@ int	print_eating(t_philo *philo)
 	if (check_if_dead(philo) == 1)
 		return (1);
 	pthread_mutex_lock(philo->print_mutex);
-	printf(HOT_PINK "[%ld] %d is eating." RESET "\n", timestamp(philo->shared),
-		philo->id);
+	printf("%ld %d is eating\n", timestamp(philo->shared), philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	return (0);
 }
-
-

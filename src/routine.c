@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/14 14:44:12 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 13:56:58 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,7 @@ int	report_death(t_monitor_data *data, int i)
 	{
 		data->shared->someone_died = 1;
 		pthread_mutex_lock(data->philos[i].print_mutex);
-		printf(RED "[%ld] %d died." RESET "\n", timestamp(data->shared),
-			data->philos[i].id);
+		printf("%ld %d died\n", timestamp(data->shared), data->philos[i].id);
 		pthread_mutex_unlock(data->philos[i].print_mutex);
 	}
 	pthread_mutex_unlock(&data->shared->death_mutex);
@@ -90,7 +89,7 @@ void	*monitor_routine(void *args)
 	{
 		if (check_all_philosophers(data))
 			break ;
-		usleep(100);
+		usleep(400);
 	}
 	free(data);
 	return (NULL);

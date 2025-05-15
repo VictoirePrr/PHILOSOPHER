@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/12 11:24:58 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 13:43:23 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,6 @@ void	my_usleep(long duration, t_philo *philo)
 	{
 		if (check_if_dead(philo))
 			break ;
-		usleep(100);
+		usleep(400);
 	}
 }

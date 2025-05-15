@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/14 14:41:25 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 14:10:53 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,7 @@ void	*routine(void *args)
 	if (wait_for_start(philo) != 0)
 		return (NULL);
 	if (philo->id % 2 == 0)
-		usleep(300);
-		//my_usleep(philo->rules->time_to_eat / 2, philo);
+		usleep(400);
 	init_forks(philo, &first, &second);
 	if (handle_one_philo(philo) == 1)
 		return (NULL);
@@ -88,7 +87,7 @@ void	*routine(void *args)
 		if (eat(philo, first, second) == 0)
 			if (p_sleep(philo) == 1)
 				break ;
-		usleep(100);
+		usleep(400);
 	}
 	return (NULL);
 }
@@ -110,6 +109,7 @@ int	main(int argc, char **argv)
 	if (init_philosophers(&data) != 0)
 	{
 		printf("ERROR : philosophers initialization failed\n");
+		// ajouter free correctement
 		return (1);
 	}
 	if (create_threads(&data) != 0)

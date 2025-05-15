@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 10:51:01 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/14 14:47:42 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 13:32:08 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,28 +94,18 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second)
 	return (1);
 }
 
-int	think(t_philo *philo)
-{
-	if (check_if_dead(philo) == 1)
-		return (1);
-	usleep(100);
-	return (0);
-}
-
 int	p_sleep(t_philo *philo)
 {
 	if (!can_print(philo))
 		return (1);
 	pthread_mutex_lock(philo->print_mutex);
-	printf(BLUE "[%ld] %d is sleeping." RESET "\n", timestamp(philo->shared),
-		philo->id);
+	printf("%ld %d is sleeping\n", timestamp(philo->shared), philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	my_usleep(philo->rules->time_to_sleep, philo);
 	if (check_if_dead(philo))
 		return (1);
 	pthread_mutex_lock(philo->print_mutex);
-	printf(GREEN "[%ld] %d is thinking." RESET "\n", timestamp(philo->shared),
-		philo->id);
+	printf("%ld %d is thinking\n", timestamp(philo->shared), philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	return (0);
 }

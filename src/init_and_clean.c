@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/14 12:36:52 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/15 13:52:25 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,10 +61,23 @@ int	init_philosophers(t_data *data)
 
 	i = 0;
 	data->philos = malloc(data->rules.num_of_philo * sizeof(t_philo));
-	data->threads = malloc(data->rules.num_of_philo * sizeof(pthread_t));
-	data->ids = malloc(data->rules.num_of_philo * sizeof(int));
-	if (!data->philos || !data->threads || !data->ids)
+	if (!data->philos)
+	{
+		free(data->philos);
 		return (1);
+	}
+	data->threads = malloc(data->rules.num_of_philo * sizeof(pthread_t));
+	if (!data->philos)
+	{
+		free(data->threads);
+		return (1);
+	}
+	data->ids = malloc(data->rules.num_of_philo * sizeof(int));
+	if (!data->philos)
+	{
+		free(data->ids);
+		return (1);
+	}
 	while (i < data->rules.num_of_philo)
 	{
 		init_philo_data(data, i);

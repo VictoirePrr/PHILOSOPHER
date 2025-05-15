@@ -6,7 +6,7 @@
 #    By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 15:32:31 by vicperri          #+#    #+#              #
-#    Updated: 2025/05/12 15:55:30 by vicperri         ###   ########lyon.fr    #
+#    Updated: 2025/05/15 13:55:52 by vicperri         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ NAME    = philo
 # Compiler and Flags
 CC := cc
 CPPFLAGS = -MMD -MP
-CCFLAGS := -Wall -Wextra -Werror -g3
+CCFLAGS := -Wall -Wextra -Werror -O3
 SRC_DIR := src/
 INCLUDES := include/
 SRC := $(addprefix $(SRC_DIR), \
