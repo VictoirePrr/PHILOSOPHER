@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/16 13:23:39 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/16 14:31:21 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,6 @@ int	create_threads(t_data *data, t_monitor_data *monitor_data)
 	int	i;
 
 	i = 0;
-	monitor_data = malloc(sizeof(t_monitor_data));
-	if (!monitor_data)
-		return (-2);
 	monitor_data->num_of_philo = data->rules.num_of_philo;
 	monitor_data->time_to_die = data->rules.time_to_die;
 	monitor_data->shared = &data->shared;
@@ -85,10 +82,24 @@ void	*routine(void *args)
 	return (NULL);
 }
 
+int	start_threads(t_data *data)
+{
+	t_monitor_data	monitor_data;
+	int				thread_status;
+
+	thread_status = create_threads(data, &monitor_data);
+	if (thread_status != 0)
+	{
+		printf("ERROR : thread creation failed\n");
+		join_and_cleanup(data, thread_status);
+		return (1);
+	}
+	return(0);
+}
+
 int	main(int argc, char **argv)
 {
-	t_data			data;
-	t_monitor_data	monitor_data;
+	t_data	data;
 
 	if (init_rules(&data.rules, argc, argv) == 1)
 	{
@@ -105,9 +116,9 @@ int	main(int argc, char **argv)
 		printf("ERROR : philosophers initialization failed\n");
 		return (1);
 	}
-	if (create_threads(&data, &monitor_data) != 0)
-		printf("ERROR : thread creation failed\n");
-	join_and_cleanup(&data, &monitor_data, create_threads(&data,
-			&monitor_data));
+	init_philo_data(&data);
+	if (start_threads(&data) != 0)
+		return (1);
+	join_and_cleanup(&data, -1);
 	return (0);
 }

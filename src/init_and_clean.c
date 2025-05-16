@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/16 13:27:09 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/16 14:31:10 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,23 +96,16 @@ int	init_philosophers(t_data *data)
 		free(data->threads);
 		return (1);
 	}
-	init_philo_data(data);
 	return (0);
 }
 
-int	join_and_cleanup(t_data *data, t_monitor_data *monitor_data, int num)
+int	join_and_cleanup(t_data *data, int num)
 {
 	int	i;
 
 	i = 0;
-	free(data->ids);
-	free(data->threads);
-	free(data->philos);
-	destroy_mutexes(data);
-	destroy_forks(data, -1);
 	if (num != -2)
 	{
-		free(monitor_data);
 		if (num == -1)
 			num = data->rules.num_of_philo;
 		while (i < num)
@@ -125,5 +118,10 @@ int	join_and_cleanup(t_data *data, t_monitor_data *monitor_data, int num)
 			if (pthread_join(data->monitor, NULL) != 0)
 				return (1);
 	}
+	destroy_mutexes(data);
+	destroy_forks(data, -1);
+	free(data->threads);
+	free(data->philos);
+	free(data->ids);
 	return (0);
 }

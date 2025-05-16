@@ -13,14 +13,6 @@
 
 # define LONG_LONG_INT 9223372036854775807
 
-# define RESET "\033[0m"
-# define BLUE "\033[34m"
-# define RED "\033[1;31m"
-# define GREEN "\033[38;5;28m"
-# define YELLOW "\033[33m"
-# define HOT_PINK "\033[38;5;198m"
-# define LIGHT_PINK "\033[38;5;218m"
-
 typedef struct s_fork
 {
 	int is_taken;          // 1 = someone took the fork, 0 = free
@@ -83,49 +75,54 @@ typedef struct s_data
 	int				*ids;
 }					t_data;
 
-// main
+/* main.c */
 int					main(int argc, char **argv);
 void				*routine(void *args);
 int					create_threads(t_data *data, t_monitor_data *monitor_data);
 
-// init_and_clean
+/* init_and_clean.c */
 int					init_rules(t_rules *rules, int argc, char **argv);
+int					init_philosophers(t_data *data);
+void				init_philo_data(t_data *data);
+int					join_and_cleanup(t_data *data, int num);
+
+/* init_mutexes.c */
 int					init_mutexes(t_data *data);
 void				destroy_forks(t_data *data, int num);
 void				destroy_mutexes(t_data *data);
-int					init_philosophers(t_data *data);
-int					join_and_cleanup(t_data *data, t_monitor_data *monitor_data,
-						int num);
-// routine
+
+/* routine.c */
 void				*monitor_routine(void *args);
 int					check_all_philosophers(t_monitor_data *data);
 int					check_philosopher_status(t_monitor_data *data, int i);
 int					report_death(t_monitor_data *data, int i);
 int					should_philosopher_stop(t_philo *philo);
 
-// routine_utils
+/* utils_routine.c */
 int					check_if_dead(t_philo *philo);
 int					take_fork(t_fork *fork);
 int					check_death_status(t_shared *shared);
 void				release_fork(t_fork *fork);
 void				init_forks(t_philo *philo, t_fork **first, t_fork **second);
 int					can_print(t_philo *philo);
-// rules
+
+/* rules.c */
 int					p_sleep(t_philo *philo);
 int					eat(t_philo *philo, t_fork *first, t_fork *second);
 int					handle_one_philo(t_philo *philo);
 
-// utils_rules
+/* utils_rules.c */
 int					print_fork_status(t_philo *philo);
 int					check_meals_completed(t_philo *philo);
 int					update_meal_time(t_philo *philo);
 int					print_eating(t_philo *philo);
 void				safe_release_both(t_fork *first, t_fork *second);
 
-// utils
+/* utils.c */
 int					check_ascii(char *argj);
 long				ft_atoi(const char *nptr);
 long				timestamp(t_shared *shared);
 long long			get_time_in_ms(void);
 void				my_usleep(long duration, t_philo *philo);
+
 #endif

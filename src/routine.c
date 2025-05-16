@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/15 13:56:58 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/16 14:30:04 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,13 +50,11 @@ int	check_philosopher_status(t_monitor_data *data, int i)
 	time_since_meal = get_time_in_ms() - data->philos[i].last_meal_time;
 	meals = data->philos[i].meals_eaten;
 	pthread_mutex_unlock(data->philos[i].meal_mutex);
-	// Check death condition with proper timing
 	if (time_since_meal > (long)data->time_to_die)
 	{
 		status = report_death(data, i);
 		return (status);
 	}
-	// Check if philosopher has completed their meals
 	if (data->philos[i].rules->num_must_eat != -1)
 		return (meals >= data->philos[i].rules->num_must_eat);
 	return (0);
@@ -91,6 +89,5 @@ void	*monitor_routine(void *args)
 			break ;
 		usleep(400);
 	}
-	free(data);
 	return (NULL);
 }
