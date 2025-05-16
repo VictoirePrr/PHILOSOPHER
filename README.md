@@ -1,12 +1,8 @@
 # 💭 Philosophers
 
-A solution to the dining philosophers problem implemented in C using threads and mutexes.
-
-## Overview
-
 This project is an implementation of the classic dining philosophers problem, where multiple philosophers sit around a table, alternating between thinking, eating, and sleeping. The challenge is to prevent deadlocks and ensure fair resource (forks) distribution.
 
-## Features
+## 🍽️ Features
 
 - Multiple philosophers dining simultaneously
 - Thread-safe implementation using mutexes
@@ -74,10 +70,10 @@ The program includes robust error handling for:
 - Memory allocation failures
 - Resource cleanup
 
-## Contributing
+## 🤍 Contributing
 
 Feel free to submit issues and enhancement requests ! :)
 
-## License
+## 🪪 License
 
 This project is part of the 42 School curriculum.
