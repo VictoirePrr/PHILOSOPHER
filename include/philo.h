@@ -86,14 +86,16 @@ typedef struct s_data
 // main
 int					main(int argc, char **argv);
 void				*routine(void *args);
-int					create_threads(t_data *data);
+int					create_threads(t_data *data, t_monitor_data *monitor_data);
 
 // init_and_clean
 int					init_rules(t_rules *rules, int argc, char **argv);
 int					init_mutexes(t_data *data);
+void				destroy_forks(t_data *data, int num);
+void				destroy_mutexes(t_data *data);
 int					init_philosophers(t_data *data);
-int					join_and_cleanup(t_data *data, int num);
-
+int					join_and_cleanup(t_data *data, t_monitor_data *monitor_data,
+						int num);
 // routine
 void				*monitor_routine(void *args);
 int					check_all_philosophers(t_monitor_data *data);
