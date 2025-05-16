@@ -1,4 +1,4 @@
-# Philosophers
+# 💭 Philosophers
 
 A solution to the dining philosophers problem implemented in C using threads and mutexes.
 
@@ -15,7 +15,7 @@ This project is an implementation of the classic dining philosophers problem, wh
 - Resource management to prevent deadlocks
 - Performance optimized with even/odd philosopher scheduling
 
-## Usage
+## 💻 Usage
 
 ### Compilation
 
@@ -47,7 +47,7 @@ make re     # Recompile the program
 ./philo 4 410 200 200 5   # 4 philosophers, must eat 5 times each
 ```
 
-## Implementation Details
+## 🛠️ Implementation Details
 
 ### Key Components
 
@@ -65,7 +65,7 @@ make re     # Recompile the program
 - `t_fork`: Fork status and mutex
 - `t_shared`: Shared state between threads
 
-## Error Handling
+## ⛑️ Error Handling
 
 The program includes robust error handling for:
 - Invalid arguments
