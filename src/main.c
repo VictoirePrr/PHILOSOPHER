@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/16 14:31:21 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/19 17:50:14 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	*routine(void *args)
 	if (wait_for_start(philo) != 0)
 		return (NULL);
 	if (philo->id % 2 == 0)
-		usleep(400);
+		my_usleep(philo->rules->time_to_eat / 2, philo);
 	init_forks(philo, &first, &second);
 	if (handle_one_philo(philo) == 1)
 		return (NULL);
@@ -74,10 +74,16 @@ void	*routine(void *args)
 	pthread_mutex_unlock(philo->meal_mutex);
 	while (!should_philosopher_stop(philo))
 	{
+		while (take_fork(first, philo) != 0 && !should_philosopher_stop(philo))
+			usleep(100);
+		while (take_fork(second, philo) != 0 && !should_philosopher_stop(philo))
+			usleep(100);
 		if (eat(philo, first, second) == 0)
+		{
 			if (p_sleep(philo) == 1)
 				break ;
-		usleep(400);
+			thinking(philo);
+		}
 	}
 	return (NULL);
 }
@@ -94,7 +100,7 @@ int	start_threads(t_data *data)
 		join_and_cleanup(data, thread_status);
 		return (1);
 	}
-	return(0);
+	return (0);
 }
 
 int	main(int argc, char **argv)

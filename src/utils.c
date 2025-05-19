@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/15 16:18:09 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/19 16:33:26 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,8 @@ long	ft_atoi(const char *nptr)
 			sign *= -1;
 	while (nptr[i] >= '0' && nptr[i] <= '9')
 	{
-		if (((nb * 10) + (nptr[i] - '0')) > LONG_LONG_INT && sign == 1)
+		if (((nb * 10) + (nptr[i] - '0')) > INT_MAX && sign == 1)
 			return (-1);
-		else if (((nb * 10) + (nptr[i] - '0')) > LONG_LONG_INT && sign == -1)
-			return (0);
 		nb = nb * 10 + (nptr[i++] - '0');
 	}
 	return (nb * sign);
@@ -69,16 +67,17 @@ int	check_ascii(char *argj)
 
 void	my_usleep(long duration, t_philo *philo)
 {
-	long			start_time;
-	long			wait;
+	long	start_time;
+	long	elapsed;
 
-	wait = (duration * 1000) * 0.80;
-	usleep(wait);
 	start_time = get_time_in_ms();
-	while ((get_time_in_ms() - start_time) < duration)
+	while (1)
 	{
 		if (check_if_dead(philo))
 			break ;
-		usleep(50);
+		elapsed = get_time_in_ms() - start_time;
+		if (elapsed >= duration)
+			break ;
+		usleep(500);
 	}
 }

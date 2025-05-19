@@ -100,7 +100,6 @@ int					should_philosopher_stop(t_philo *philo);
 
 /* utils_routine.c */
 int					check_if_dead(t_philo *philo);
-int					take_fork(t_fork *fork);
 int					check_death_status(t_shared *shared);
 void				release_fork(t_fork *fork);
 void				init_forks(t_philo *philo, t_fork **first, t_fork **second);
@@ -110,6 +109,9 @@ int					can_print(t_philo *philo);
 int					p_sleep(t_philo *philo);
 int					eat(t_philo *philo, t_fork *first, t_fork *second);
 int					handle_one_philo(t_philo *philo);
+int					take_fork(t_fork *fork, t_philo *philo);
+
+void				thinking(t_philo *philo);
 
 /* utils_rules.c */
 int					print_fork_status(t_philo *philo);
