@@ -6,7 +6,7 @@
 #    By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 15:32:31 by vicperri          #+#    #+#              #
-#    Updated: 2025/05/15 13:55:52 by vicperri         ###   ########lyon.fr    #
+#    Updated: 2025/05/21 13:52:09 by vicperri         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,12 +22,13 @@ INCLUDES := include/
 SRC := $(addprefix $(SRC_DIR), \
 	main.c \
 	routine.c \
-	utils_routine.c \
+	routine_utils.c \
 	rules.c \
-	utils.c \
+	parsing_utils.c \
 	init_and_clean.c \
-	utils_rules.c \
+	rules_utils.c \
 	init_mutexes.c \
+	monitor.c \
 )
 
 # Object Files and Directories

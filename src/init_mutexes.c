@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:52:59 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/16 13:22:39 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/21 17:41:15 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,37 +21,15 @@ int	init_basic_mutexes(t_data *data)
 		pthread_mutex_destroy(&data->print_mutex);
 		return (1);
 	}
-	if (pthread_mutex_init(&data->slow_mutex, NULL) != 0)
-	{
-		pthread_mutex_destroy(&data->print_mutex);
-		pthread_mutex_destroy(&data->meal_mutex);
-		return (1);
-	}
 	if (pthread_mutex_init(&data->shared.death_mutex, NULL) != 0)
 	{
 		pthread_mutex_destroy(&data->print_mutex);
 		pthread_mutex_destroy(&data->meal_mutex);
-		pthread_mutex_destroy(&data->slow_mutex);
 		return (1);
 	}
 	data->shared.someone_died = 0;
 	data->shared.start_time = 0;
 	return (0);
-}
-
-void	destroy_forks(t_data *data, int num)
-{
-	int	i;
-
-	i = 0;
-	if (num == -1)
-		num = data->rules.num_of_philo;
-	while (i < num)
-	{
-		pthread_mutex_destroy(&data->forks[i].mutex);
-		i++;
-	}
-	free(data->forks);
 }
 
 int	init_fork_mutexes(t_data *data)

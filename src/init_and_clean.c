@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/16 14:31:10 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/21 17:40:56 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,6 @@ int	init_rules(t_rules *rules, int argc, char **argv)
 	return (0);
 }
 
-void	destroy_mutexes(t_data *data)
-{
-	pthread_mutex_destroy(&data->print_mutex);
-	pthread_mutex_destroy(&data->meal_mutex);
-	pthread_mutex_destroy(&data->shared.death_mutex);
-	pthread_mutex_destroy(&data->slow_mutex);
-}
-
 void	init_philo_data(t_data *data)
 {
 	int	i;
@@ -56,7 +48,6 @@ void	init_philo_data(t_data *data)
 		data->philos[i].id = data->ids[i];
 		data->philos[i].meals_eaten = 0;
 		data->philos[i].print_mutex = &data->print_mutex;
-		data->philos[i].slow_mutex = &data->slow_mutex;
 		data->philos[i].left_fork = &data->forks[i];
 		data->philos[i].left_fork_id = i;
 		data->philos[i].right_fork = &data->forks[(i + 1)
@@ -66,6 +57,7 @@ void	init_philo_data(t_data *data)
 		data->philos[i].last_meal_time = get_time_in_ms();
 		data->philos[i].meal_mutex = &data->meal_mutex;
 		data->philos[i].shared = &data->shared;
+		data->philos[i].print_status = 0;
 		i++;
 	}
 }

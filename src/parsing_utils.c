@@ -1,16 +1,53 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/19 16:33:26 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/21 17:41:28 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void	destroy_mutexes(t_data *data)
+{
+	pthread_mutex_destroy(&data->print_mutex);
+	pthread_mutex_destroy(&data->meal_mutex);
+	pthread_mutex_destroy(&data->shared.death_mutex);
+}
+
+void	destroy_forks(t_data *data, int num)
+{
+	int	i;
+
+	i = 0;
+	if (num == -1)
+		num = data->rules.num_of_philo;
+	while (i < num)
+	{
+		pthread_mutex_destroy(&data->forks[i].mutex);
+		i++;
+	}
+	free(data->forks);
+}
+
+int	check_creation(t_data *data)
+{
+	t_monitor_data	monitor_data;
+	int				thread_status;
+
+	thread_status = start_philo(data, &monitor_data);
+	if (thread_status != 0)
+	{
+		printf("ERROR : thread creation failed\n");
+		join_and_cleanup(data, thread_status);
+		return (1);
+	}
+	return (0);
+}
 
 long	ft_atoi(const char *nptr)
 {
@@ -35,19 +72,6 @@ long	ft_atoi(const char *nptr)
 	return (nb * sign);
 }
 
-long long	get_time_in_ms(void)
-{
-	struct timeval	current_time;
-
-	gettimeofday(&current_time, NULL);
-	return (current_time.tv_sec * 1000 + current_time.tv_usec / 1000);
-}
-
-long	timestamp(t_shared *shared)
-{
-	return (get_time_in_ms() - shared->start_time);
-}
-
 int	check_ascii(char *argj)
 {
 	int	j;
@@ -63,21 +87,4 @@ int	check_ascii(char *argj)
 		j++;
 	}
 	return (0);
-}
-
-void	my_usleep(long duration, t_philo *philo)
-{
-	long	start_time;
-	long	elapsed;
-
-	start_time = get_time_in_ms();
-	while (1)
-	{
-		if (check_if_dead(philo))
-			break ;
-		elapsed = get_time_in_ms() - start_time;
-		if (elapsed >= duration)
-			break ;
-		usleep(500);
-	}
 }
