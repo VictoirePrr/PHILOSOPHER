@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 11:18:00 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/22 14:30:47 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 17:21:22 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	start_philo(t_data *data, t_monitor_data *monitor_data)
 	monitor_data->philos = data->philos;
 	while (i < data->rules.num_of_philo)
 	{
-		if (i == 5 || pthread_create(&data->threads[i], NULL, routine,
+		if (pthread_create(&data->threads[i], NULL, routine,
 				&data->philos[i]) != 0)
 			return (i);
 		i++;
