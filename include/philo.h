@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:35:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 18:06:01 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 14:51:42 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct s_rules
 typedef struct s_shared
 {
 	int				someone_died;
+	int				end;
 	pthread_mutex_t	death_mutex;
 	long			start_time;
 }					t_shared;
@@ -92,7 +93,8 @@ int					start_philo(t_data *data, t_monitor_data *monitor_data);
 int					init_rules(t_rules *rules, int argc, char **argv);
 int					init_philosophers(t_data *data);
 void				init_philo_data(t_data *data);
-int					join_and_cleanup(t_data *data, int num);
+int					join_and_cleanup(t_data *data, int num,
+						t_monitor_data *monitor_data);
 
 /* init_mutexes.c */
 int					init_mutexes(t_data *data);

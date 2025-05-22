@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:52:59 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 17:41:15 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 15:05:28 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int	init_basic_mutexes(t_data *data)
 	}
 	data->shared.someone_died = 0;
 	data->shared.start_time = 0;
+	data->shared.end = 0;
 	return (0);
 }
 

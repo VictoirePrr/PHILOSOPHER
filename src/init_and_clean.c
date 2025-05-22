@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 14:06:35 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 17:40:56 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 14:59:21 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,9 @@ int	init_rules(t_rules *rules, int argc, char **argv)
 	rules->time_to_die = ft_atoi(argv[2]);
 	rules->time_to_eat = ft_atoi(argv[3]);
 	rules->time_to_sleep = ft_atoi(argv[4]);
+	if (rules->num_of_philo <= 0 || rules->time_to_die <= 0
+		|| rules->time_to_eat <= 0 || rules->time_to_sleep <= 0)
+		return (1);
 	if (argc == 6)
 		rules->num_must_eat = ft_atoi(argv[5]);
 	else
@@ -91,7 +94,7 @@ int	init_philosophers(t_data *data)
 	return (0);
 }
 
-int	join_and_cleanup(t_data *data, int num)
+int	join_and_cleanup(t_data *data, int num, t_monitor_data *monitor_data)
 {
 	int	i;
 
@@ -106,12 +109,13 @@ int	join_and_cleanup(t_data *data, int num)
 				return (1);
 			i++;
 		}
-		if (num != -1)
+		if (num == data->rules.num_of_philo)
 			if (pthread_join(data->monitor, NULL) != 0)
 				return (1);
 	}
 	destroy_mutexes(data);
 	destroy_forks(data, -1);
+	free(monitor_data);
 	free(data->threads);
 	free(data->philos);
 	free(data->ids);

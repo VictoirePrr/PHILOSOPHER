@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 10:49:07 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 18:14:54 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 13:13:07 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void	my_usleep(long duration, t_philo *philo)
 		usleep(500);
 	}
 }
+
 int	check_meals_completed(t_philo *philo)
 {
 	int	meals;
@@ -60,14 +61,5 @@ int	check_death_status(t_shared *shared)
 	pthread_mutex_lock(&shared->death_mutex);
 	is_dead = shared->someone_died;
 	pthread_mutex_unlock(&shared->death_mutex);
-	return (is_dead);
-}
-int	check_if_dead(t_philo *philo)
-{
-	int	is_dead;
-
-	pthread_mutex_lock(&philo->shared->death_mutex);
-	is_dead = philo->shared->someone_died;
-	pthread_mutex_unlock(&philo->shared->death_mutex);
 	return (is_dead);
 }

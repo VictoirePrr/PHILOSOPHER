@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 10:51:01 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 17:28:12 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 15:01:24 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ int	eat(t_philo *philo, t_fork *first, t_fork *second, int *num_of_forks)
 	philo->print_status = 0;
 	if (*num_of_forks == 2)
 	{
-		if ((check_if_dead(philo)) == 1
-			|| check_meals_completed(philo) == 1)
+		if ((check_if_dead(philo)) == 1 || check_meals_completed(philo) == 1)
 		{
 			safe_release_both(first, second, num_of_forks);
 			return (1);
@@ -44,7 +43,7 @@ void	thinking(t_philo *philo)
 {
 	if ((check_if_dead(philo)) == 1)
 		return ;
-	if (philo->print_status == 0)
+	if (philo->print_status == 0 && philo->rules->num_of_philo > 1)
 	{
 		pthread_mutex_lock(philo->print_mutex);
 		printf("%ld %d is thinking\n", timestamp(philo->shared), philo->id);
@@ -87,4 +86,11 @@ int	take_fork(t_fork *first, t_fork *second, t_philo *philo, int *num_of_forks)
 		return (0);
 	else
 		return (1);
+}
+
+void	safe_release_both(t_fork *first, t_fork *second, int *num_of_forks)
+{
+	release_fork(first);
+	release_fork(second);
+	*num_of_forks = 0;
 }

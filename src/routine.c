@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 10:59:52 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 18:14:37 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 14:54:53 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,20 @@
 static int	wait_for_start(t_philo *philo)
 {
 	int	started;
+	int	end;
 
 	while (1)
 	{
 		pthread_mutex_lock(&philo->shared->death_mutex);
 		started = philo->shared->start_time != 0;
 		pthread_mutex_unlock(&philo->shared->death_mutex);
-		if (started)
+		if (started > 0)
 			break ;
+		pthread_mutex_lock(&philo->shared->death_mutex);
+		end = philo->shared->end != 0;
+		pthread_mutex_unlock(&philo->shared->death_mutex);
+		if (end == 1)
+			return (1);
 		my_usleep(1, philo);
 	}
 	if (philo->id == philo->rules->num_of_philo)
@@ -34,9 +40,9 @@ void	init_forks(t_philo *philo, t_fork **first, t_fork **second)
 {
 	if (philo->id % 2 == 0)
 	{
-		my_usleep(philo->rules->time_to_eat / 2, philo);
 		*first = philo->left_fork;
 		*second = philo->right_fork;
+		my_usleep(philo->rules->time_to_eat / 2, philo);
 	}
 	else
 	{

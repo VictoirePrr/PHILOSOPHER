@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 14:56:57 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 17:41:28 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 15:04:11 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,16 +36,28 @@ void	destroy_forks(t_data *data, int num)
 
 int	check_creation(t_data *data)
 {
-	t_monitor_data	monitor_data;
+	t_monitor_data	*monitor_data;
 	int				thread_status;
 
-	thread_status = start_philo(data, &monitor_data);
+	thread_status = -1;
+	monitor_data = malloc(sizeof(t_monitor_data));
+	if (!monitor_data)
+	{
+		printf("ERROR : monitor creation failed\n");
+		join_and_cleanup(data, -2, monitor_data);
+		return (1);
+	}
+	thread_status = start_philo(data, monitor_data);
 	if (thread_status != 0)
 	{
 		printf("ERROR : thread creation failed\n");
-		join_and_cleanup(data, thread_status);
+		pthread_mutex_lock(&data->shared.death_mutex);
+		data->shared.end = 1;
+		pthread_mutex_unlock(&data->shared.death_mutex);
+		join_and_cleanup(data, thread_status, monitor_data);
 		return (1);
 	}
+	join_and_cleanup(data, -1, monitor_data);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: vicperri <vicperri@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 15:44:42 by vicperri          #+#    #+#             */
-/*   Updated: 2025/05/21 17:27:54 by vicperri         ###   ########lyon.fr   */
+/*   Updated: 2025/05/22 13:12:42 by vicperri         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,6 @@ void	release_fork(t_fork *fork)
 	pthread_mutex_lock(&fork->mutex);
 	fork->is_taken = 0;
 	pthread_mutex_unlock(&fork->mutex);
-}
-
-void	safe_release_both(t_fork *first, t_fork *second, int *num_of_forks)
-{
-	release_fork(first);
-	release_fork(second);
-	*num_of_forks = 0;
 }
 
 int	print_fork_status(t_philo *philo)
@@ -45,10 +38,20 @@ int	update_meal_time(t_philo *philo)
 
 int	print_eating(t_philo *philo)
 {
-	if (check_if_dead(philo))
+	if (check_if_dead(philo) == 1)
 		return (1);
 	pthread_mutex_lock(philo->print_mutex);
 	printf("%ld %d is eating\n", timestamp(philo->shared), philo->id);
 	pthread_mutex_unlock(philo->print_mutex);
 	return (0);
+}
+
+int	check_if_dead(t_philo *philo)
+{
+	int	is_dead;
+
+	pthread_mutex_lock(&philo->shared->death_mutex);
+	is_dead = philo->shared->someone_died;
+	pthread_mutex_unlock(&philo->shared->death_mutex);
+	return (is_dead);
 }
